@@ -6,8 +6,11 @@ const authService = new AuthService();
 export class AuthController {
     static async register(req, res) {
         try {
-            const { nombre, email, password, rol } = req.body;
-            const result = await authService.register(nombre, email, password, rol);
+            const { name, email, password, rol } = req.body;
+            if (!name || !email || !password || !rol) {
+                return res.status(400).json({ error: 'Todos los campos son obligatorios' });
+            }
+            const result = await authService.register(name, email, password, rol);
             res.status(201).json(result);
         } catch (error) {
             res.status(400).json({ error: error.message });

@@ -6,7 +6,7 @@ import { User } from '../models/usuarios.model.js';
 const userRepo = new User();
 
 export class AuthService {
-    async register(name, email, password, role = 'vendedor') {
+    async register(name, email, password, role) {
         const existingUser = await userRepo.findByEmail(email);
         if (existingUser) throw new Error('Usuario ya existe');
 

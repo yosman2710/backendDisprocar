@@ -1,7 +1,8 @@
 import express from "express";
 import cors from "cors";
 import dotenv from "dotenv";
-import db from "./db.js";
+import pool from "./db.js";
+import authRouter from "./routes/auth.route.js";
 
 dotenv.config();
 
@@ -10,6 +11,7 @@ const app = express();
 app.use(cors());
 app.use(express.json());
 
+app.use("/auth", authRouter);
 
 app.get("/", (req, res) => {
     res.send("Hello World!");
@@ -17,7 +19,7 @@ app.get("/", (req, res) => {
 
 async function testConnection() {
     try {
-        const { rows } = await db.query("SELECT NOW() AS now");
+        const { rows } = await pool.query("SELECT NOW() AS now");
         console.log("Conexión a base de datos exitosa. Hora del servidor:", rows[0].now);
     } catch (err) {
         console.error("Error al conectar a la base de datos:", err);
