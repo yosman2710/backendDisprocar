@@ -12,7 +12,7 @@ export class MataderoRepository {
     }
 
     async findAll() {
-        const result = await pool.query('SELECT * FROM mataderos WHERE activo = true');
+        const result = await pool.query('SELECT * FROM mataderos');
         return result.rows;
     }
 
@@ -20,4 +20,5 @@ export class MataderoRepository {
         const result = await pool.query('SELECT * FROM mataderos WHERE id = $1', [id]);
         return result.rows[0];
     }
+
 }

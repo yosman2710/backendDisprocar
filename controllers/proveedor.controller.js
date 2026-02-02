@@ -11,4 +11,13 @@ export class ProveedorController {
             res.status(400).json({ error: error.message });
         }
     }
+
+    static async listarProveedores(req, res) {
+        try {
+            const result = await proveedorService.listarProveedores();
+            res.status(200).json(result);
+        } catch (error) {
+            res.status(400).json({ error: error.message });
+        }
+    }
 }

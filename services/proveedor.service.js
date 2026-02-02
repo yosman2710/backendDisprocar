@@ -1,6 +1,6 @@
 import { ProveedorRepository } from '../models/proveedor.model.js';
 
-const proveedorRepo = new ProveedorRepository();
+const { create, findAll } = new ProveedorRepository();
 
 export class ProveedorService {
     async crearProveedor(data) {
@@ -8,10 +8,14 @@ export class ProveedorService {
             throw new Error('Nombre y RIF son obligatorios');
         }
 
-        const proveedor = await proveedorRepo.create(data);
+        const proveedor = await create(data);
         return {
             message: 'Proveedor creado exitosamente',
             proveedor
         };
+    }
+
+    async listarProveedores() {
+        return await findAll();
     }
 }

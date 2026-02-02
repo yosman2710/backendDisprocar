@@ -23,3 +23,13 @@ export const authRole = (roles) => {
         next();
     }
 }
+
+/*
+{
+    "nombre": "juan pablo",
+    "rif":"2548915-8",
+    "direccion":"tierra negra",
+    "telefono":"0412789465",
+    "email":"juan@gmail.com"    
+}    
+*/
