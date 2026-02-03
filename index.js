@@ -4,6 +4,7 @@ import dotenv from "dotenv";
 import pool from "./db.js";
 import authRouter from "./routes/auth.route.js";
 import ordenCompraRouter from "./routes/ordenCompra.route.js";
+import resesRouter from "./routes/reses.route.js";
 
 dotenv.config();
 
@@ -14,6 +15,7 @@ app.use(express.json());
 
 app.use("/auth", authRouter);
 app.use("/orden-compra", ordenCompraRouter);
+app.use("/reses", resesRouter);
 
 app.get("/", (req, res) => {
     res.send("Hello World!");
