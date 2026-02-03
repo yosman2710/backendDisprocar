@@ -1,13 +1,13 @@
 import pool from '../db.js';
 
 export class ResesRepository {
-    async create({ ticket_id, estado, peso_caliente, fecha_peso_caliente, clasificacion }, numeroRes) {
+    async create({ ticket_id, peso_caliente, fecha_peso_caliente, clasificacion }, numeroRes) {
         const query = `
       INSERT INTO reses ( ticket_id, numero,estado, peso_caliente, fecha_peso_caliente, clasificacion )
       VALUES ($1, $2, $3, $4, $5, $6)
       RETURNING *
     `;
-        const result = await pool.query(query, [ticket_id, numeroRes, estado, peso_caliente, fecha_peso_caliente, clasificacion]);
+        const result = await pool.query(query, [ticket_id, numeroRes, 'pesado_caliente', peso_caliente, fecha_peso_caliente, clasificacion]);
         return result.rows[0];
     }
 
@@ -28,11 +28,21 @@ export class ResesRepository {
     async addPesoFrio({ id, peso_frio }, merma_kg, merma_porcentaje) {
         const query = `
       UPDATE reses
-      SET peso_frio = $2, merma_kg = $3, merma_porcentaje = $4, fecha_peso_frio = NOW()
+      SET estado = 'pesado_frio', peso_frio = $2, merma_kg = $3, merma_porcentaje = $4, fecha_peso_frio = NOW()
       WHERE id = $1
       RETURNING *
     `;
         const result = await pool.query(query, [id, peso_frio, merma_kg, merma_porcentaje]);
+        return result.rows[0];
+    }
+    async updateEstado(id, estado) {
+        const query = `
+      UPDATE reses
+      SET estado = $2
+      WHERE id = $1
+      RETURNING *
+    `;
+        const result = await pool.query(query, [id, estado]);
         return result.rows[0];
     }
 }

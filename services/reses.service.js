@@ -1,7 +1,7 @@
 import { ResesRepository } from '../models/reses.model.js';
 import { OrdenCompraRepository } from '../models/ordenCompra.model.js';
 
-const { create, findAll, findByTicketId, addPesoFrio, findById: findByIdRes } = new ResesRepository();
+const { create, findAll, findByTicketId, addPesoFrio, findById: findByIdRes, updateEstado } = new ResesRepository();
 const { findById } = new OrdenCompraRepository();
 
 export class ResesService {
@@ -43,6 +43,18 @@ export class ResesService {
         const merma_kg = reses.peso_caliente - data.peso_frio;
         const merma_porcentaje = (merma_kg / reses.peso_caliente) * 100;
         const resesActualizado = await addPesoFrio({ id: data.id, peso_frio: data.peso_frio }, merma_kg, merma_porcentaje);
+        return {
+            message: 'Reses actualizado exitosamente',
+            resesActualizado
+        };
+    }
+
+    async updateEstado(id, estado) {
+        const reses = await findByIdRes(id);
+        if (!reses) {
+            throw new Error('Res no encontrada');
+        }
+        const resesActualizado = await updateEstado(id, estado);
         return {
             message: 'Reses actualizado exitosamente',
             resesActualizado

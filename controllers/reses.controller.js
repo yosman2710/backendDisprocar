@@ -34,4 +34,14 @@ export class ResesController {
             res.status(400).json({ error: error.message });
         }
     }
+
+    static async updateEstado(req, res) {
+        try {
+            const { id, estado } = req.body;
+            const result = await resesService.updateEstado(id, estado);
+            res.status(200).json(result);
+        } catch (error) {
+            res.status(400).json({ error: error.message });
+        }
+    }
 }
