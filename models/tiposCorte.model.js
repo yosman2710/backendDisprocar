@@ -3,10 +3,10 @@ import pool from '../db.js';
 export class TiposCorteRepository {
     async findAllActivos() {
         const result = await pool.query(`
-            SELECT id, nombre, categoria 
+            SELECT id, nombre 
             FROM tipos_corte 
             WHERE activo = true 
-            ORDER BY categoria, nombre
+            ORDER BY nombre
         `);
         return result.rows;
     }

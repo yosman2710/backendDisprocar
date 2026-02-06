@@ -15,7 +15,6 @@ router.put('/addPesoFrio', auth, authRole(['admin', 'pesador_frio']), addPesoFri
 
 router.put('/updateEstado', auth, authRole(['admin', 'pesador_caliente', 'pesador_frio']), updateEstado);
 
-// DESHUESADOR - Catálogo + Desguace
 router.get('/tipos-corte',
     auth,
     authRole(['deshuesador', 'admin']),
@@ -34,7 +33,6 @@ router.post('/reses/:resId/cortes',
     CorteController.registrarCortes.bind(CorteController)
 );
 
-// INVENTARIO - Agregar stock desde cortes
 router.post('/inventario/agregar-stock', auth, authRole(['admin', 'deshuesador']), InventarioController.agregarStock.bind(InventarioController));
 
 export default router;
