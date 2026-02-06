@@ -21,15 +21,15 @@ export class CorteController {
 
     static async marcarDesguazada(req, res) {
         try {
-            const { resId } = req.params;
-            const res = await corteService.marcarDesguazada(resId);
+            const { id } = req.body;
+            const result = await corteService.marcarDesguazada(id);
             res.json({
                 success: true,
                 message: 'Res marcada como desguazada',
                 data: {
-                    id: res.id,
-                    estado: res.estado,
-                    numero: res.numero
+                    id: result.id,
+                    estado: result.estado,
+                    numero: result.numero
                 }
             });
         } catch (error) {
@@ -42,9 +42,23 @@ export class CorteController {
 
     static async registrarCortes(req, res) {
         try {
-            const { resId } = req.params;
-            const cortesData = req.body;
-            const result = await corteService.registrarCortes(resId, cortesData);
+            const { id, cortes } = req.body;
+            const result = await corteService.registrarCortes(id, cortes);
+            res.status(201).json({
+                success: true,
+                ...result
+            });
+        } catch (error) {
+            res.status(400).json({
+                success: false,
+                error: error.message
+            });
+        }
+    }
+    static async crearTipoCorte(req, res) {
+        try {
+            const { nombre } = req.body;
+            const result = await corteService.crearTipoCorte({ nombre });
             res.status(201).json({
                 success: true,
                 ...result

@@ -15,4 +15,11 @@ export class TiposCorteRepository {
         const result = await pool.query('SELECT * FROM tipos_corte WHERE id = $1 AND activo = true', [id]);
         return result.rows[0];
     }
+    async crearTipoCorte(tipoCorte) {
+        const result = await pool.query(
+            'INSERT INTO tipos_corte (nombre) VALUES ($1) RETURNING *',
+            [tipoCorte.nombre]
+        );
+        return result.rows[0];
+    }
 }

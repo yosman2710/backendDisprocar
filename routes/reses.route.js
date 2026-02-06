@@ -5,34 +5,18 @@ import { CorteController } from '../controllers/corte.controller.js';
 import { InventarioController } from '../controllers/inventario.controller.js';
 
 const router = Router();
-const { crearReses, listarReses, addPesoFrio, updateEstado } = ResesController;
+const { crearReses, listarReses, addPesoFrio, marcarCongelado } = ResesController;
+const { marcarDesguazada, registrarCortes, listarTiposCorte } = CorteController;
 
 router.post('/', auth, authRole(['admin', 'pesador_caliente']), crearReses);
 
-router.get('/', auth, authRole(['admin', 'pesador_caliente', 'pesador_frio']), listarReses);
+router.get('/', auth, authRole(['admin', 'pesador_caliente', 'pesador_frio', 'deshuesador']), listarReses);
+
+router.put('/congelar', auth, authRole(['admin', 'pesador_caliente']), marcarCongelado);
 
 router.put('/addPesoFrio', auth, authRole(['admin', 'pesador_frio']), addPesoFrio);
 
-router.put('/updateEstado', auth, authRole(['admin', 'pesador_caliente', 'pesador_frio']), updateEstado);
+router.put('/desguazar', auth, authRole(['deshuesador', 'admin']), marcarDesguazada);
 
-router.get('/tipos-corte',
-    auth,
-    authRole(['deshuesador', 'admin']),
-    CorteController.listarTiposCorte.bind(CorteController)
-);
-
-router.post('/reses/:resId/desguazar',
-    auth,
-    authRole(['deshuesador']),
-    CorteController.marcarDesguazada.bind(CorteController)
-);
-
-router.post('/reses/:resId/cortes',
-    auth,
-    authRole(['deshuesador']),
-    CorteController.registrarCortes.bind(CorteController)
-);
-
-router.post('/inventario/agregar-stock', auth, authRole(['admin', 'deshuesador']), InventarioController.agregarStock.bind(InventarioController));
 
 export default router;

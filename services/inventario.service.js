@@ -22,4 +22,8 @@ export class InventarioService {
             stockCreado: corteIds.length
         };
     }
+    async findAll() {
+        return await inventarioRepo.findAll();
+    }
+
 }

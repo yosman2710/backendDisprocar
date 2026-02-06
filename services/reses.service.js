@@ -40,6 +40,9 @@ export class ResesService {
         if (!reses) {
             throw new Error('Res no encontrada');
         }
+        if (reses.estado !== 'congelador') {
+            throw new Error('Res debe estar "congelador" para agregar peso frio');
+        }
         const merma_kg = reses.peso_caliente - data.peso_frio;
         const merma_porcentaje = (merma_kg / reses.peso_caliente) * 100;
         const resesActualizado = await addPesoFrio({ id: data.id, peso_frio: data.peso_frio }, merma_kg, merma_porcentaje);
@@ -49,12 +52,19 @@ export class ResesService {
         };
     }
 
-    async updateEstado(id, estado) {
+
+    async marcarCongelado(id) {
         const reses = await findByIdRes(id);
         if (!reses) {
             throw new Error('Res no encontrada');
         }
-        const resesActualizado = await updateEstado(id, estado);
+        if (reses.estado === 'congelado') {
+            throw new Error('Res ya está congelado');
+        }
+        if (reses.estado !== 'pesado_caliente') {
+            throw new Error('Res debe estar "pesado_caliente" para congelar');
+        }
+        const resesActualizado = await updateEstado(id, 'congelador');
         return {
             message: 'Reses actualizado exitosamente',
             resesActualizado

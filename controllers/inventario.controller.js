@@ -12,4 +12,20 @@ export class InventarioController {
             res.status(400).json({ error: error.message });
         }
     }
+
+    static async findAll(req, res) {
+        try {
+            const inventario = await inventarioService.findAll();
+            res.json({
+                success: true,
+                message: 'Inventario encontrado',
+                data: inventario
+            });
+        } catch (error) {
+            res.status(500).json({
+                success: false,
+                error: error.message
+            });
+        }
+    }
 }

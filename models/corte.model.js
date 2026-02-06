@@ -1,14 +1,14 @@
-import pool from '../config/database.js';
+import pool from '../db.js';
 
 export class CorteRepository {
-    async crearCortes(resId, cortes) {
+    async crearCortes(id, cortes) {
         const client = await pool.connect();
         try {
             const values = [];
 
             for (let i = 0; i < cortes.length; i++) {
                 const corte = cortes[i];
-                values.push(resId, corte.tipo_corte_id, corte.clasificacion, corte.peso);
+                values.push(id, corte.tipo_corte_id, corte.clasificacion, corte.peso);
             }
 
             const placeholders = cortes.map((_, i) =>

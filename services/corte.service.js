@@ -11,18 +11,21 @@ export class CorteService {
         return await tiposCorteRepo.findAllActivos();
     }
 
-    async marcarDesguazada(resId) {
-        const res = await resRepo.findById(resId);
+    async marcarDesguazada(id) {
+        const res = await resRepo.findById(id);
         if (!res) throw new Error('Res no encontrada');
+        if (res.estado === 'desguazado') {
+            throw new Error('Res ya está desguazada');
+        }
         if (res.estado !== 'pesado_frio') {
             throw new Error('Res debe estar "pesado_frio" para desguazar');
         }
-        return await resRepo.updateEstado(resId, 'desguazado');
+        return await resRepo.updateEstado(id, 'desguazado');
     }
 
-    async registrarCortes(resId, cortesData) {
+    async registrarCortes(id, cortesData) {
         // 1. Validar res
-        const res = await resRepo.findById(resId);
+        const res = await resRepo.findById(id);
         if (!res) throw new Error('Res no encontrada');
         if (res.estado !== 'desguazado') {
             throw new Error('Res debe estar "desguazada" para registrar cortes');
@@ -54,13 +57,12 @@ export class CorteService {
                 categoria: tipoCorte.categoria
             });
         }
-
-        // 3. Crear cortes
-        const cortesCreados = await corteRepo.crearCortes(resId, cortesValidos);
+        const cortesCreados = await corteRepo.crearCortes(id, cortesValidos);
+        await resRepo.updateEstado(id, 'completado');
 
         return {
             message: `${cortesData.length} cortes registrados exitosamente`,
-            res_id: resId,
+            res_id: id,
             total_peso: cortesValidos.reduce((sum, c) => sum + c.peso, 0),
             cortes: cortesCreados.map((c, index) => ({
                 id: c.id,
@@ -71,6 +73,9 @@ export class CorteService {
                 peso: parseFloat(c.peso)
             }))
         };
+    }
+    async crearTipoCorte(tipoCorte) {
+        return await tiposCorteRepo.crearTipoCorte(tipoCorte);
     }
 }
 
