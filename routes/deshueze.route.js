@@ -4,6 +4,7 @@ import { CorteController } from '../controllers/corte.controller.js';
 import { InventarioController } from '../controllers/inventario.controller.js';
 const router = Router();
 router.post('/', auth, authRole(['deshuesador', 'admin']), CorteController.registrarCortes);
+router.get('/por-res/:id', auth, authRole(['admin', 'registrador']), CorteController.listarCortesPorRes);
 router.put('/agregar-stock', auth, authRole(['admin', 'deshuesador']), InventarioController.agregarStock);
 
 export default router;

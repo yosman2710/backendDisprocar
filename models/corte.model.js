@@ -27,4 +27,15 @@ export class CorteRepository {
             client.release();
         }
     }
+    async findByResId(res_id) {
+        const query = `
+            SELECT ce.*, tc.nombre as tipo_nombre
+            FROM cortes_extraidos ce
+            JOIN tipos_corte tc ON ce.tipo_corte_id = tc.id
+            WHERE ce.res_id = $1
+        `;
+        const result = await pool.query(query, [res_id]);
+        return result.rows;
+    }
 }
+

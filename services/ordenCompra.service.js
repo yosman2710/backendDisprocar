@@ -29,4 +29,16 @@ export class OrdenCompraService {
     async listarOrdenesCompra() {
         return await ordenCompraRepo.findAll();
     }
+
+    async listarOrdenesPendientesPesoCaliente() {
+        return await ordenCompraRepo.findPendientesPesoCaliente();
+    }
+
+    async listarOrdenesPendientesPesoFrio() {
+        return await ordenCompraRepo.findPendientesPesoFrio();
+    }
+
+    async listarOrdenesPendientesDeshuese() {
+        return await ordenCompraRepo.findPendientesDeshuese();
+    }
 }

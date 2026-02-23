@@ -74,6 +74,10 @@ export class CorteService {
             }))
         };
     }
+    async listarCortesPorRes(res_id) {
+        return await corteRepo.findByResId(res_id);
+    }
+
     async crearTipoCorte(tipoCorte) {
         return await tiposCorteRepo.crearTipoCorte(tipoCorte);
     }

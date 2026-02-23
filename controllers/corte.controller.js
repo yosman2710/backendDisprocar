@@ -43,12 +43,15 @@ export class CorteController {
     static async registrarCortes(req, res) {
         try {
             const { id, cortes } = req.body;
+            console.log(`[Debonning] Solicitud para res ID: ${id}, Cantidad de cortes: ${cortes.length}`);
             const result = await corteService.registrarCortes(id, cortes);
+            console.log(`[Debonning] Registro exitoso para res ID: ${id}`);
             res.status(201).json({
                 success: true,
                 ...result
             });
         } catch (error) {
+            console.error(`[Debonning] Error en registro para res ID: ${req.body.id}:`, error.message);
             res.status(400).json({
                 success: false,
                 error: error.message
@@ -62,6 +65,21 @@ export class CorteController {
             res.status(201).json({
                 success: true,
                 ...result
+            });
+        } catch (error) {
+            res.status(400).json({
+                success: false,
+                error: error.message
+            });
+        }
+    }
+    static async listarCortesPorRes(req, res) {
+        try {
+            const { id } = req.params;
+            const result = await corteService.listarCortesPorRes(id);
+            res.json({
+                success: true,
+                data: result
             });
         } catch (error) {
             res.status(400).json({

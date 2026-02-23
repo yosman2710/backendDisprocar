@@ -1,20 +1,20 @@
 import { ResesRepository } from '../models/reses.model.js';
 import { OrdenCompraRepository } from '../models/ordenCompra.model.js';
 
-const { create, findAll, findByTicketId, addPesoFrio, findById: findByIdRes, updateEstado } = new ResesRepository();
+const { create, findAll, findByOrdenId, addPesoFrio, findById: findByIdRes, updateEstado, findByOrdenIdWithCuts } = new ResesRepository();
 const { findById } = new OrdenCompraRepository();
 
 export class ResesService {
     async crearReses(data) {
-        if (!data.ticket_id || !data.estado || !data.peso_caliente || !data.fecha_peso_caliente || !data.clasificacion) {
-            throw new Error('ticket_id, estado, peso_caliente, fecha_peso_caliente y clasificacion son obligatorios');
+        if (!data.orden_id || !data.estado || !data.peso_caliente || !data.fecha_peso_caliente || !data.clasificacion) {
+            throw new Error('orden_id, estado, peso_caliente, fecha_peso_caliente y clasificacion son obligatorios');
         }
-        const ordenCompra = await findById(data.ticket_id);
+        const ordenCompra = await findById(data.orden_id);
         if (!ordenCompra) {
             throw new Error('Orden de compra no encontrada');
         }
         let numeroRes = 0;
-        const numero_reses = await findByTicketId(data.ticket_id);
+        const numero_reses = await findByOrdenId(data.orden_id);
         if (numero_reses.length >= 0) {
             numeroRes = numero_reses.length + 1;
         }
@@ -30,6 +30,10 @@ export class ResesService {
 
     async listarReses() {
         return await findAll();
+    }
+
+    async listarResesPorTicket(orden_id) {
+        return await findByOrdenIdWithCuts(orden_id);
     }
 
     async addPesoFrio(data) {

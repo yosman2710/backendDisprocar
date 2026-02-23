@@ -20,7 +20,7 @@ app.use("/orden-compra", ordenCompraRouter);
 app.use("/reses", resesRouter);
 app.use("/stocks", stocksRouter);
 app.use("/tipos-corte", tiposCorteRouter);
-app.use("/deshuesador", deshuezeRouter);
+app.use("/deshueze", deshuezeRouter);
 
 app.get("/", (req, res) => {
     res.send("Hello World!");
