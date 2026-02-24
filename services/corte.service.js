@@ -27,8 +27,10 @@ export class CorteService {
         // 1. Validar res
         const res = await resRepo.findById(id);
         if (!res) throw new Error('Res no encontrada');
-        if (res.estado !== 'desguazado') {
-            throw new Error('Res debe estar "desguazada" para registrar cortes');
+
+        const estadosValidos = ['pesado_frio', 'desguazado'];
+        if (!estadosValidos.includes(res.estado)) {
+            throw new Error(`Res debe estar en uno de los siguientes estados para registrar cortes: ${estadosValidos.join(', ')}`);
         }
 
         // 2. Validar cada corte
@@ -53,8 +55,7 @@ export class CorteService {
                 tipo_corte_id: corteData.tipo_corte_id,
                 clasificacion: corteData.clasificacion,
                 peso: corteData.peso,
-                tipo_nombre: tipoCorte.nombre,
-                categoria: tipoCorte.categoria
+                tipo_nombre: tipoCorte.nombre
             });
         }
         const cortesCreados = await corteRepo.crearCortes(id, cortesValidos);
@@ -68,7 +69,6 @@ export class CorteService {
                 id: c.id,
                 tipo_corte_id: c.tipo_corte_id,
                 tipo_nombre: cortesValidos[index].tipo_nombre,
-                categoria: cortesValidos[index].categoria,
                 clasificacion: c.clasificacion,
                 peso: parseFloat(c.peso)
             }))

@@ -28,7 +28,63 @@ export class OrdenCompraRepository {
   }
 
   async findAll() {
-    const result = await pool.query('SELECT * FROM orden_compra');
+    const result = await pool.query('SELECT * FROM orden_compra ORDER BY fecha DESC');
+    return result.rows;
+  }
+
+  async findResumenPorProveedor() {
+    const query = `
+      SELECT
+        proveedor_id,
+        COUNT(*) AS total_ordenes,
+        SUM(cantidad_res) AS total_reses,
+        SUM(peso_total_caliente) AS total_kg_caliente,
+        AVG(NULLIF(merma_total_porcentaje, 0)) AS merma_promedio
+      FROM orden_compra
+      GROUP BY proveedor_id
+    `;
+    const result = await pool.query(query);
+    return result.rows;
+  }
+
+  async findResumenPorMatadero() {
+    const query = `
+      SELECT
+        matadero_id,
+        COUNT(*) AS total_ordenes,
+        SUM(cantidad_res) AS total_reses,
+        SUM(peso_total_caliente) AS total_kg_caliente,
+        AVG(NULLIF(merma_total_porcentaje, 0)) AS merma_promedio
+      FROM orden_compra
+      GROUP BY matadero_id
+    `;
+    const result = await pool.query(query);
+    return result.rows;
+  }
+
+  async findByProveedorId(proveedor_id) {
+    const query = `
+      SELECT oc.*,
+             m.nombre as matadero_nombre
+      FROM orden_compra oc
+      LEFT JOIN mataderos m ON oc.matadero_id = m.id
+      WHERE oc.proveedor_id = $1
+      ORDER BY oc.fecha DESC
+    `;
+    const result = await pool.query(query, [proveedor_id]);
+    return result.rows;
+  }
+
+  async findByMataderoId(matadero_id) {
+    const query = `
+      SELECT oc.*,
+             p.nombre as proveedor_nombre
+      FROM orden_compra oc
+      LEFT JOIN proveedores p ON oc.proveedor_id = p.id
+      WHERE oc.matadero_id = $1
+      ORDER BY oc.fecha DESC
+    `;
+    const result = await pool.query(query, [matadero_id]);
     return result.rows;
   }
 

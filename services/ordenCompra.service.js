@@ -30,6 +30,22 @@ export class OrdenCompraService {
         return await ordenCompraRepo.findAll();
     }
 
+    async resumenPorProveedor() {
+        return await ordenCompraRepo.findResumenPorProveedor();
+    }
+
+    async resumenPorMatadero() {
+        return await ordenCompraRepo.findResumenPorMatadero();
+    }
+
+    async listarOrdenesPorProveedor(proveedor_id) {
+        return await ordenCompraRepo.findByProveedorId(proveedor_id);
+    }
+
+    async listarOrdenesPorMatadero(matadero_id) {
+        return await ordenCompraRepo.findByMataderoId(matadero_id);
+    }
+
     async listarOrdenesPendientesPesoCaliente() {
         return await ordenCompraRepo.findPendientesPesoCaliente();
     }

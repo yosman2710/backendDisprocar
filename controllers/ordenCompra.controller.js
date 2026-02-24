@@ -25,6 +25,44 @@ export class OrdenCompraController {
         }
     }
 
+    static async resumenPorProveedor(req, res) {
+        try {
+            const result = await ordenCompraService.resumenPorProveedor();
+            res.status(200).json(result);
+        } catch (error) {
+            res.status(400).json({ error: error.message });
+        }
+    }
+
+    static async resumenPorMatadero(req, res) {
+        try {
+            const result = await ordenCompraService.resumenPorMatadero();
+            res.status(200).json(result);
+        } catch (error) {
+            res.status(400).json({ error: error.message });
+        }
+    }
+
+    static async listarOrdenesPorProveedor(req, res) {
+        try {
+            const { proveedor_id } = req.params;
+            const result = await ordenCompraService.listarOrdenesPorProveedor(proveedor_id);
+            res.status(200).json(result);
+        } catch (error) {
+            res.status(400).json({ error: error.message });
+        }
+    }
+
+    static async listarOrdenesPorMatadero(req, res) {
+        try {
+            const { matadero_id } = req.params;
+            const result = await ordenCompraService.listarOrdenesPorMatadero(matadero_id);
+            res.status(200).json(result);
+        } catch (error) {
+            res.status(400).json({ error: error.message });
+        }
+    }
+
     static async listarOrdenesPendientesPesoCaliente(req, res) {
         try {
             const result = await ordenCompraService.listarOrdenesPendientesPesoCaliente();
