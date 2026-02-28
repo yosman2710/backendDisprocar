@@ -92,16 +92,29 @@ export class OrdenCompraRepository {
     const result = await pool.query('SELECT * FROM orden_compra WHERE id = $1', [id]);
     return result.rows[0];
   }
+
+  async updateEstado(id, estado) {
+    const query = `
+      UPDATE orden_compra
+      SET estado = $2
+      WHERE id = $1
+      RETURNING *
+    `;
+    const result = await pool.query(query, [id, estado]);
+    return result.rows[0];
+  }
   async findPendientesPesoCaliente() {
     const query = `
       SELECT oc.*, 
              p.nombre as proveedor_nombre, 
              m.nombre as matadero_nombre,
+             (SELECT COUNT(*) FROM reses r WHERE r.orden_id = oc.id AND r.estado = 'pesado_caliente') as reses_pendientes_congelador,
              (SELECT COUNT(*) FROM reses r WHERE r.orden_id = oc.id) as reses_procesadas
       FROM orden_compra oc
       LEFT JOIN proveedores p ON oc.proveedor_id = p.id
       LEFT JOIN mataderos m ON oc.matadero_id = m.id
       WHERE (SELECT COUNT(*) FROM reses r WHERE r.orden_id = oc.id) < oc.cantidad_res
+         OR EXISTS (SELECT 1 FROM reses r WHERE r.orden_id = oc.id AND r.estado = 'pesado_caliente')
       ORDER BY oc.fecha DESC
     `;
     const result = await pool.query(query);
@@ -113,11 +126,11 @@ export class OrdenCompraRepository {
       SELECT oc.*, 
              p.nombre as proveedor_nombre, 
              m.nombre as matadero_nombre,
-             (SELECT COUNT(*) FROM reses r WHERE r.orden_id = oc.id AND r.estado = 'congelador') as reses_en_congelador
+             (SELECT COUNT(*) FROM reses r WHERE r.orden_id = oc.id AND (r.estado = 'congelador' OR r.estado = 'pesado_frio')) as reses_en_congelador
       FROM orden_compra oc
       LEFT JOIN proveedores p ON oc.proveedor_id = p.id
       LEFT JOIN mataderos m ON oc.matadero_id = m.id
-      WHERE EXISTS (SELECT 1 FROM reses r WHERE r.orden_id = oc.id AND r.estado = 'congelador')
+      WHERE EXISTS (SELECT 1 FROM reses r WHERE r.orden_id = oc.id AND (r.estado = 'congelador' OR r.estado = 'pesado_frio'))
       ORDER BY oc.fecha DESC
     `;
     const result = await pool.query(query);
@@ -129,11 +142,11 @@ export class OrdenCompraRepository {
       SELECT oc.*, 
              p.nombre as proveedor_nombre, 
              m.nombre as matadero_nombre,
-             (SELECT COUNT(*) FROM reses r WHERE r.orden_id = oc.id AND (r.estado = 'desguazado' OR r.estado = 'pesado_frio')) as reses_en_deshuese
+             (SELECT COUNT(*) FROM reses r WHERE r.orden_id = oc.id AND r.estado = 'desguazado') as reses_en_deshuese
       FROM orden_compra oc
       LEFT JOIN proveedores p ON oc.proveedor_id = p.id
       LEFT JOIN mataderos m ON oc.matadero_id = m.id
-      WHERE EXISTS (SELECT 1 FROM reses r WHERE r.orden_id = oc.id AND (r.estado = 'desguazado' OR r.estado = 'pesado_frio'))
+      WHERE EXISTS (SELECT 1 FROM reses r WHERE r.orden_id = oc.id AND r.estado = 'desguazado')
       ORDER BY oc.fecha DESC
     `;
     const result = await pool.query(query);

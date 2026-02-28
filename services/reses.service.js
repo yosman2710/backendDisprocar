@@ -2,7 +2,7 @@ import { ResesRepository } from '../models/reses.model.js';
 import { OrdenCompraRepository } from '../models/ordenCompra.model.js';
 
 const { create, findAll, findByOrdenId, addPesoFrio, findById: findByIdRes, updateEstado, findByOrdenIdWithCuts } = new ResesRepository();
-const { findById } = new OrdenCompraRepository();
+const { findById, updateEstado: updateOrdenEstado } = new OrdenCompraRepository();
 
 export class ResesService {
     async crearReses(data) {
@@ -22,6 +22,16 @@ export class ResesService {
             throw new Error('La orden de compra la cantidad de reses ya fue completada');
         }
         const reses = await create(data, numeroRes);
+
+        // Update orden_compra status
+        if (numeroRes === 1) {
+            await updateOrdenEstado(data.orden_id, 'procesando');
+        }
+
+        if (numeroRes === ordenCompra.cantidad_res) {
+            await updateOrdenEstado(data.orden_id, 'completado');
+        }
+
         return {
             message: 'Reses creado exitosamente',
             reses

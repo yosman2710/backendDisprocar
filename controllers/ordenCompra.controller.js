@@ -6,8 +6,6 @@ export class OrdenCompraController {
     static async crearOrdenCompra(req, res) {
         try {
             const ordenData = req.body;
-            const userId = req.user.id;
-            console.log(userId);
 
             const result = await ordenCompraService.crearOrdenCompra(ordenData);
             res.status(201).json(result);
