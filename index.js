@@ -10,6 +10,7 @@ import tiposCorteRouter from "./routes/tipocortes.route.js";
 import deshuezeRouter from "./routes/deshueze.route.js"
 import mataderosRouter from "./routes/mataderos.route.js";
 import proveedoresRouter from "./routes/proveedores.route.js";
+import estadisticasRouter from "./routes/estadisticas.route.js";
 dotenv.config();
 
 const app = express();
@@ -25,6 +26,7 @@ app.use("/tipos-corte", tiposCorteRouter);
 app.use("/deshueze", deshuezeRouter);
 app.use("/mataderos", mataderosRouter);
 app.use("/proveedores", proveedoresRouter);
+app.use("/estadisticas", estadisticasRouter);
 
 app.get("/", (req, res) => {
     res.send("Hello World!");
