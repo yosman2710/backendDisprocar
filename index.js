@@ -11,6 +11,7 @@ import deshuezeRouter from "./routes/deshueze.route.js"
 import mataderosRouter from "./routes/mataderos.route.js";
 import proveedoresRouter from "./routes/proveedores.route.js";
 import estadisticasRouter from "./routes/estadisticas.route.js";
+import aiRouter from "./routes/ai.route.js";
 dotenv.config();
 
 const app = express();
@@ -27,6 +28,7 @@ app.use("/deshueze", deshuezeRouter);
 app.use("/mataderos", mataderosRouter);
 app.use("/proveedores", proveedoresRouter);
 app.use("/estadisticas", estadisticasRouter);
+app.use("/ai", aiRouter);
 
 app.get("/", (req, res) => {
     res.send("Hello World!");
