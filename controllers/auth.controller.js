@@ -26,4 +26,8 @@ export class AuthController {
             res.status(400).json({ error: error.message });
         }
     }
+
+    static async verify(req, res) {
+        res.json({ valid: true, user: req.user });
+    }
 }
