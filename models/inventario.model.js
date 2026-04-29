@@ -18,6 +18,24 @@ export class InventarioRepository {
     }
 
     async findDetallesByCodigo(codigo) {
+        // Intenta buscar por la lógica de la vista (INV-NombreCorte-YYYYMMDD) usando fecha_registro
+        const queryVista = `
+            SELECT 
+                ce.id as corte_id,
+                ce.peso,
+                ce.fecha_registro as fecha,
+                ce.clasificacion as calidad
+            FROM cortes_extraidos ce
+            JOIN tipos_corte tc ON ce.tipo_corte_id = tc.id
+            WHERE ('INV-' || tc.nombre || '-' || to_char(ce.fecha_registro, 'YYYYMMDD')) = $1
+        `;
+        const resultVista = await pool.query(queryVista, [codigo]);
+
+        if (resultVista.rows.length > 0) {
+            return resultVista.rows;
+        }
+
+        // Fallback a la tabla inventario si no se encuentra por la vista dinámica
         const queryTabla = `
             SELECT 
                 i.id as inventario_id,
