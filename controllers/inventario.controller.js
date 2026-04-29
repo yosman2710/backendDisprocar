@@ -28,4 +28,20 @@ export class InventarioController {
             });
         }
     }
+
+    static async getDetalles(req, res) {
+        try {
+            const { codigo } = req.params;
+            const detalles = await inventarioService.findDetalles(codigo);
+            res.json({
+                success: true,
+                data: detalles
+            });
+        } catch (error) {
+            res.status(500).json({
+                success: false,
+                error: error.message
+            });
+        }
+    }
 }

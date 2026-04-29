@@ -26,4 +26,8 @@ export class InventarioService {
         return await inventarioRepo.findAll();
     }
 
+    async findDetalles(codigo) {
+        return await inventarioRepo.findDetallesByCodigo(codigo);
+    }
+
 }

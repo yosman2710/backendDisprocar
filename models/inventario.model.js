@@ -16,4 +16,21 @@ export class InventarioRepository {
         const result = await pool.query('SELECT * FROM inventario');
         return result.rows;
     }
+
+    async findDetallesByCodigo(codigo) {
+        const query = `
+            SELECT 
+                i.id as inventario_id,
+                i.peso_total as peso,
+                i.fecha_ingreso as fecha,
+                ce.clasificacion as calidad,
+                ce.id as corte_id,
+                i.codigo
+            FROM inventario i
+            LEFT JOIN cortes_extraidos ce ON i.corte_extraido_id = ce.id
+            WHERE i.codigo = $1 OR i.tipo_corte = $1
+        `;
+        const result = await pool.query(query, [codigo]);
+        return result.rows;
+    }
 }
