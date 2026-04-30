@@ -61,27 +61,18 @@ export class OrdenCompraController {
         }
     }
 
-    static async listarOrdenesPendientesPesoCaliente(req, res) {
+    static async listarOrdenesPendientesRecepcion(req, res) {
         try {
-            const result = await ordenCompraService.listarOrdenesPendientesPesoCaliente();
+            const result = await ordenCompraService.listarOrdenesPendientesRecepcion();
             res.status(200).json(result);
         } catch (error) {
             res.status(400).json({ error: error.message });
         }
     }
 
-    static async listarOrdenesPendientesPesoFrio(req, res) {
+    static async listarOrdenesPendientesCorte(req, res) {
         try {
-            const result = await ordenCompraService.listarOrdenesPendientesPesoFrio();
-            res.status(200).json(result);
-        } catch (error) {
-            res.status(400).json({ error: error.message });
-        }
-    }
-
-    static async listarOrdenesPendientesDeshuese(req, res) {
-        try {
-            const result = await ordenCompraService.listarOrdenesPendientesDeshuese();
+            const result = await ordenCompraService.listarOrdenesPendientesCorte();
             res.status(200).json(result);
         } catch (error) {
             res.status(400).json({ error: error.message });

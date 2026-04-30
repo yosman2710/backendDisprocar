@@ -4,7 +4,7 @@ import { auth, authRole } from '../middleware/verifyToken.js';
 import { CorteController } from '../controllers/corte.controller.js';
 
 const router = Router();
-const { crearReses, listarReses, addPesoFrio, marcarCongelado, listarResesPorTicket } = ResesController;
+const { crearReses, listarReses, listarResesPorTicket } = ResesController;
 const { marcarDesguazada } = CorteController;
 
 router.post('/', auth, authRole(['admin', 'pesador_caliente']), crearReses);
@@ -12,10 +12,6 @@ router.post('/', auth, authRole(['admin', 'pesador_caliente']), crearReses);
 router.get('/', auth, authRole(['admin', 'pesador_caliente', 'pesador_frio', 'deshuesador']), listarReses);
 
 router.get('/by-order/:orden_id', auth, authRole(['admin', 'registrador', 'pesador_caliente', 'pesador_frio', 'deshuesador']), listarResesPorTicket);
-
-router.put('/congelar', auth, authRole(['admin', 'pesador_caliente']), marcarCongelado);
-
-router.put('/addPesoFrio', auth, authRole(['admin', 'pesador_frio']), addPesoFrio);
 
 router.put('/desguazar', auth, authRole(['deshuesador', 'admin', 'pesador_frio']), marcarDesguazada);
 

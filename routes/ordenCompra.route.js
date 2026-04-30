@@ -3,12 +3,11 @@ import { OrdenCompraController } from '../controllers/ordenCompra.controller.js'
 import { auth, authRole } from '../middleware/verifyToken.js';
 
 const router = Router();
-const { crearOrdenCompra, listarOrdenesCompra, listarOrdenesPendientesPesoCaliente, listarOrdenesPendientesPesoFrio, listarOrdenesPendientesDeshuese, listarOrdenesPorProveedor, listarOrdenesPorMatadero, resumenPorProveedor, resumenPorMatadero } = OrdenCompraController;
+const { crearOrdenCompra, listarOrdenesCompra, listarOrdenesPendientesRecepcion, listarOrdenesPendientesCorte, listarOrdenesPorProveedor, listarOrdenesPorMatadero, resumenPorProveedor, resumenPorMatadero } = OrdenCompraController;
 
 
-router.get('/pendientes-caliente', auth, authRole(['admin', 'pesador_caliente']), listarOrdenesPendientesPesoCaliente);
-router.get('/pendientes-frio', auth, authRole(['admin', 'pesador_frio']), listarOrdenesPendientesPesoFrio);
-router.get('/pendientes-deshuese', auth, authRole(['admin', 'deshuesador']), listarOrdenesPendientesDeshuese);
+router.get('/pendientes-recepcion', auth, authRole(['admin', 'pesador_caliente']), listarOrdenesPendientesRecepcion);
+router.get('/pendientes-corte', auth, authRole(['admin', 'deshuesador']), listarOrdenesPendientesCorte);
 
 router.post('/', auth, authRole(['admin', 'registrador']), crearOrdenCompra);
 router.get('/', auth, authRole(['admin', 'registrador']), listarOrdenesCompra);

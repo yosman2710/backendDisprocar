@@ -13,10 +13,6 @@ export class OrdenCompraService {
             throw new Error('Cantidad de reses debe ser mayor a 0');
         }
 
-        if (data.sexo && !['Macho', 'Hembra', 'Mixto'].includes(data.sexo)) {
-            throw new Error('Sexo inválido');
-        }
-
         const ordenCompra = await ordenCompraRepo.create(data);
 
         return {
@@ -46,15 +42,11 @@ export class OrdenCompraService {
         return await ordenCompraRepo.findByMataderoId(matadero_id);
     }
 
-    async listarOrdenesPendientesPesoCaliente() {
-        return await ordenCompraRepo.findPendientesPesoCaliente();
+    async listarOrdenesPendientesRecepcion() {
+        return await ordenCompraRepo.findPendientesRecepcion();
     }
 
-    async listarOrdenesPendientesPesoFrio() {
-        return await ordenCompraRepo.findPendientesPesoFrio();
-    }
-
-    async listarOrdenesPendientesDeshuese() {
-        return await ordenCompraRepo.findPendientesDeshuese();
+    async listarOrdenesPendientesCorte() {
+        return await ordenCompraRepo.findPendientesCorte();
     }
 }

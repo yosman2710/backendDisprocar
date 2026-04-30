@@ -29,5 +29,8 @@ export class InventarioService {
     async findDetalles(codigo) {
         return await inventarioRepo.findDetallesByCodigo(codigo);
     }
+    async updateAlmacen(id, almacen_nombre) {
+        return await inventarioRepo.updateAlmacen(id, almacen_nombre);
+    }
 
 }

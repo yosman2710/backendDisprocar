@@ -1,13 +1,13 @@
 import { ResesRepository } from '../models/reses.model.js';
 import { OrdenCompraRepository } from '../models/ordenCompra.model.js';
 
-const { create, findAll, findByOrdenId, addPesoFrio, findById: findByIdRes, updateEstado, findByOrdenIdWithCuts } = new ResesRepository();
+const { create, findAll, findByOrdenId, findById: findByIdRes, updateEstado, findByOrdenIdWithCuts } = new ResesRepository();
 const { findById, updateEstado: updateOrdenEstado } = new OrdenCompraRepository();
 
 export class ResesService {
     async crearReses(data) {
-        if (!data.orden_id || !data.estado || !data.peso_caliente || !data.fecha_peso_caliente || !data.clasificacion) {
-            throw new Error('orden_id, estado, peso_caliente, fecha_peso_caliente y clasificacion son obligatorios');
+        if (!data.orden_id || !data.peso_romana || !data.peso_ticket || !data.tipo_de_res) {
+            throw new Error('orden_id, peso_romana, peso_ticket, tipo_de_res son obligatorios');
         }
         const ordenCompra = await findById(data.orden_id);
         if (!ordenCompra) {
@@ -21,7 +21,20 @@ export class ResesService {
         if (ordenCompra.cantidad_res < numeroRes) {
             throw new Error('La orden de compra la cantidad de reses ya fue completada');
         }
-        const reses = await create(data, numeroRes);
+
+        // Calcular merma de transporte (Ticket vs Romana)
+        const pesoTicket = parseFloat(data.peso_ticket);
+        const pesoRomana = parseFloat(data.peso_romana);
+        const merma_kg = pesoTicket - pesoRomana;
+        const merma_porcentaje = pesoTicket > 0 ? (merma_kg / pesoTicket) * 100 : 0;
+
+        const resData = {
+            ...data,
+            merma_kg,
+            merma_porcentaje
+        };
+
+        const reses = await create(resData, numeroRes);
 
         // Update orden_compra status
         if (numeroRes === 1) {
@@ -33,7 +46,7 @@ export class ResesService {
         }
 
         return {
-            message: 'Reses creado exitosamente',
+            message: 'Res creada exitosamente y enviada al congelador',
             reses
         };
     }
@@ -44,44 +57,5 @@ export class ResesService {
 
     async listarResesPorTicket(orden_id) {
         return await findByOrdenIdWithCuts(orden_id);
-    }
-
-    async addPesoFrio(data) {
-        if (!data.id || !data.peso_frio) {
-            throw new Error('id y peso_frio son obligatorios');
-        }
-        const reses = await findByIdRes(data.id);
-        if (!reses) {
-            throw new Error('Res no encontrada');
-        }
-        if (reses.estado !== 'congelador') {
-            throw new Error('Res debe estar "congelador" para agregar peso frio');
-        }
-        const merma_kg = reses.peso_caliente - data.peso_frio;
-        const merma_porcentaje = (merma_kg / reses.peso_caliente) * 100;
-        const resesActualizado = await addPesoFrio({ id: data.id, peso_frio: data.peso_frio }, merma_kg, merma_porcentaje);
-        return {
-            message: 'Reses actualizado exitosamente',
-            resesActualizado
-        };
-    }
-
-
-    async marcarCongelado(id) {
-        const reses = await findByIdRes(id);
-        if (!reses) {
-            throw new Error('Res no encontrada');
-        }
-        if (reses.estado === 'congelado') {
-            throw new Error('Res ya está congelado');
-        }
-        if (reses.estado !== 'pesado_caliente') {
-            throw new Error('Res debe estar "pesado_caliente" para congelar');
-        }
-        const resesActualizado = await updateEstado(id, 'congelador');
-        return {
-            message: 'Reses actualizado exitosamente',
-            resesActualizado
-        };
     }
 }

@@ -16,5 +16,6 @@ router.get('/test-schema', async (req, res) => {
 
 router.get('/', auth, authRole(['admin', 'deshuesador']), InventarioController.findAll);
 router.get('/:codigo/detalles', auth, authRole(['admin', 'deshuesador']), InventarioController.getDetalles);
+router.put('/:id/almacen', auth, authRole(['admin']), InventarioController.updateAlmacen);
 
 export default router;

@@ -44,4 +44,21 @@ export class InventarioController {
             });
         }
     }
+
+    static async updateAlmacen(req, res) {
+        try {
+            const { id } = req.params;
+            const { almacen_nombre } = req.body;
+            await inventarioService.updateAlmacen(id, almacen_nombre);
+            res.json({
+                success: true,
+                message: 'Almacén actualizado correctamente'
+            });
+        } catch (error) {
+            res.status(500).json({
+                success: false,
+                error: error.message
+            });
+        }
+    }
 }

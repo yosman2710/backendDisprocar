@@ -51,4 +51,10 @@ export class InventarioRepository {
         const resultTabla = await pool.query(queryTabla, [codigo]);
         return resultTabla.rows;
     }
+    async updateAlmacen(id, almacen_nombre) {
+        await pool.query(
+            'UPDATE inventario SET almacen_nombre = $1 WHERE id = $2',
+            [almacen_nombre, id]
+        );
+    }
 }
