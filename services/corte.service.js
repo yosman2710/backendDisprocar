@@ -28,14 +28,14 @@ export class CorteService {
         const res = await resRepo.findById(id);
         if (!res) throw new Error('Res no encontrada');
 
-        const estadosValidos = ['pesado_frio', 'desguazado'];
+        const estadosValidos = ['pesado_frio', 'desguazado', 'congelador'];
         if (!estadosValidos.includes(res.estado)) {
             throw new Error(`Res debe estar en uno de los siguientes estados para registrar cortes: ${estadosValidos.join(', ')}`);
         }
 
         // 2. Validar cada corte
         const cortesValidos = [];
-        const clasificacionesValidas = ['Premium', 'Primera', 'Segunda', 'Industrial'];
+        const clasificacionesValidas = ['AA', 'A', 'B', 'C', 'D'];
 
         for (const corteData of cortesData) {
             const tipoCorte = await tiposCorteRepo.findById(corteData.tipo_corte_id);
