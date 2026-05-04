@@ -1,61 +1,79 @@
-import { ResesRepository } from '../models/reses.model.js';
+import { ResesRepository }    from '../models/reses.model.js';
 import { OrdenCompraRepository } from '../models/ordenCompra.model.js';
 
-const { create, findAll, findByOrdenId, findById: findByIdRes, updateEstado, findByOrdenIdWithCuts } = new ResesRepository();
-const { findById, updateEstado: updateOrdenEstado } = new OrdenCompraRepository();
+const resesRepo    = new ResesRepository();
+const ordenCompraRepo = new OrdenCompraRepository();
 
 export class ResesService {
+
     async crearReses(data) {
-        if (!data.orden_id || !data.peso_romana || !data.peso_ticket || !data.tipo_de_res) {
-            throw new Error('orden_id, peso_romana, peso_ticket, tipo_de_res son obligatorios');
+        // Validación básica
+        if (!data.orden_id || !data.peso_romana || !data.tipo_de_res) {
+            throw new Error('orden_id, peso_romana y tipo_de_res son obligatorios');
         }
-        const ordenCompra = await findById(data.orden_id);
-        if (!ordenCompra) {
-            throw new Error('Orden de compra no encontrada');
+
+        const ordenCompra = await ordenCompraRepo.findById(data.orden_id);
+        if (!ordenCompra) throw new Error('Orden de compra no encontrada');
+
+        // Contar reses ya registradas en esta orden
+        const resasExistentes = await resesRepo.findByOrdenId(data.orden_id);
+        const numeroRes = resasExistentes.length + 1;
+
+        // Validar que no se supere el total de la orden
+        if (numeroRes > ordenCompra.cantidad_res) {
+            throw new Error('Ya se registraron todas las reses de esta orden');
         }
-        let numeroRes = 0;
-        const numero_reses = await findByOrdenId(data.orden_id);
-        if (numero_reses.length >= 0) {
-            numeroRes = numero_reses.length + 1;
-        }
-        if (ordenCompra.cantidad_res < numeroRes) {
-            throw new Error('La orden de compra la cantidad de reses ya fue completada');
+
+        // Validar contra el lote: verificar que el tipo de res esté permitido y no supere la cantidad
+        const lote = ordenCompra.lote ?? [];
+        if (lote.length > 0) {
+            const tipoEnLote = lote.find(l => l.tipo_de_res === data.tipo_de_res);
+            if (!tipoEnLote) {
+                throw new Error(`El tipo "${data.tipo_de_res}" no está en el lote de esta orden`);
+            }
+            // Contar cuántas reses de este tipo ya se registraron
+            const yaRegistradasDeTipo = resasExistentes.filter(
+                r => r.tipo_de_res === data.tipo_de_res
+            ).length;
+            if (yaRegistradasDeTipo >= tipoEnLote.cantidad) {
+                throw new Error(
+                    `Ya se completó la cuota de ${tipoEnLote.cantidad} reses para el tipo "${data.tipo_de_res}"`
+                );
+            }
         }
 
         // Calcular merma de transporte (Ticket vs Romana)
-        const pesoTicket = parseFloat(data.peso_ticket);
         const pesoRomana = parseFloat(data.peso_romana);
-        const merma_kg = pesoTicket - pesoRomana;
-        const merma_porcentaje = pesoTicket > 0 ? (merma_kg / pesoTicket) * 100 : 0;
+        const pesoTicket = data.peso_ticket ? parseFloat(data.peso_ticket) : null;
+        const merma_kg          = pesoTicket != null ? (pesoTicket - pesoRomana)           : null;
+        const merma_porcentaje  = pesoTicket != null && pesoTicket > 0
+            ? ((pesoTicket - pesoRomana) / pesoTicket) * 100
+            : null;
 
-        const resData = {
-            ...data,
-            merma_kg,
-            merma_porcentaje
-        };
+        const resData = { ...data, merma_kg, merma_porcentaje };
+        const nuevaRes = await resesRepo.create(resData, numeroRes);
 
-        const reses = await create(resData, numeroRes);
-
-        // Update orden_compra status
+        // Actualizar estado de la orden
         if (numeroRes === 1) {
-            await updateOrdenEstado(data.orden_id, 'procesando');
+            await ordenCompraRepo.updateEstado(data.orden_id, 'procesando');
         }
-
         if (numeroRes === ordenCompra.cantidad_res) {
-            await updateOrdenEstado(data.orden_id, 'completado');
+            await ordenCompraRepo.updateEstado(data.orden_id, 'completado');
         }
 
         return {
-            message: 'Res creada exitosamente y enviada al congelador',
-            reses
+            message: 'Res registrada exitosamente',
+            reses: nuevaRes,
+            numero: numeroRes,
+            pendientes: ordenCompra.cantidad_res - numeroRes
         };
     }
 
     async listarReses() {
-        return await findAll();
+        return await resesRepo.findAll();
     }
 
     async listarResesPorTicket(orden_id) {
-        return await findByOrdenIdWithCuts(orden_id);
+        return await resesRepo.findByOrdenIdWithCuts(orden_id);
     }
 }

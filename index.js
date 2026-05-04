@@ -34,18 +34,72 @@ app.get("/", (req, res) => {
     res.send("Hello World!");
 });
 
-async function testConnection() {
+// ── Auto-migración al arrancar ────────────────────────────────────────────────
+// Todos los ALTER usan IF NOT EXISTS → seguros de re-ejecutar en cada deploy
+async function runMigrations() {
+    const steps = [
+        // orden_compra: eliminar columnas obsoletas
+        `ALTER TABLE orden_compra DROP COLUMN IF EXISTS sexo`,
+        `ALTER TABLE orden_compra DROP COLUMN IF EXISTS clasificacion`,
+        `ALTER TABLE orden_compra DROP COLUMN IF EXISTS peso_total_caliente`,
+        `ALTER TABLE orden_compra DROP COLUMN IF EXISTS peso_total_frio`,
+        // orden_compra: agregar columnas nuevas
+        `ALTER TABLE orden_compra ADD COLUMN IF NOT EXISTS detalle_tipos      JSONB`,
+        `ALTER TABLE orden_compra ADD COLUMN IF NOT EXISTS temp_promedio      NUMERIC(4,1)`,
+        `ALTER TABLE orden_compra ADD COLUMN IF NOT EXISTS peso_promedio      NUMERIC(8,2)`,
+        `ALTER TABLE orden_compra ADD COLUMN IF NOT EXISTS condicion_vehiculo VARCHAR(20) DEFAULT 'Bien'`,
+        `ALTER TABLE orden_compra ADD COLUMN IF NOT EXISTS condicion_cestas   VARCHAR(20) DEFAULT 'Bien'`,
+        `ALTER TABLE orden_compra ADD COLUMN IF NOT EXISTS observaciones      TEXT`,
+        `ALTER TABLE orden_compra ADD COLUMN IF NOT EXISTS temp_termoking     NUMERIC(4,1)`,
+        // reses: eliminar columnas obsoletas
+        `ALTER TABLE reses DROP COLUMN IF EXISTS peso_caliente`,
+        `ALTER TABLE reses DROP COLUMN IF EXISTS fecha_peso_caliente`,
+        `ALTER TABLE reses DROP COLUMN IF EXISTS peso_frio`,
+        `ALTER TABLE reses DROP COLUMN IF EXISTS fecha_peso_frio`,
+        // reses: agregar columnas nuevas
+        `ALTER TABLE reses ADD COLUMN IF NOT EXISTS piezas             INTEGER     DEFAULT 2`,
+        `ALTER TABLE reses ADD COLUMN IF NOT EXISTS sexo               VARCHAR(10)`,
+        `ALTER TABLE reses ADD COLUMN IF NOT EXISTS tipo_de_res        VARCHAR(20)`,
+        `ALTER TABLE reses ADD COLUMN IF NOT EXISTS temperatura        NUMERIC(4,1)`,
+        `ALTER TABLE reses ADD COLUMN IF NOT EXISTS peso_romana        NUMERIC(8,2)`,
+        `ALTER TABLE reses ADD COLUMN IF NOT EXISTS peso_ticket        NUMERIC(8,2)`,
+        `ALTER TABLE reses ADD COLUMN IF NOT EXISTS clasificacion      VARCHAR(20) DEFAULT 'AA'`,
+        `ALTER TABLE reses ADD COLUMN IF NOT EXISTS merma_kg           NUMERIC(8,2)`,
+        `ALTER TABLE reses ADD COLUMN IF NOT EXISTS merma_porcentaje   NUMERIC(6,2)`,
+        // inventario
+        `ALTER TABLE inventario ADD COLUMN IF NOT EXISTS almacen_nombre VARCHAR(50) DEFAULT 'Almacén 1'`,
+        // índices
+        `CREATE INDEX IF NOT EXISTS idx_reses_orden_id    ON reses(orden_id)`,
+        `CREATE INDEX IF NOT EXISTS idx_reses_tipo_de_res ON reses(tipo_de_res)`,
+        `CREATE INDEX IF NOT EXISTS idx_orden_estado       ON orden_compra(estado)`,
+    ];
+
+    console.log("🔄 Aplicando migraciones automáticas...");
+    for (const sql of steps) {
+        try {
+            await pool.query(sql);
+        } catch (err) {
+            // Ignorar errores de columnas que ya no existen al hacer DROP
+            if (!err.message.includes('does not exist')) {
+                console.warn("⚠️  Migración parcial:", err.message);
+            }
+        }
+    }
+    console.log("✅ Migraciones completadas.");
+}
+
+async function start() {
     try {
         const { rows } = await pool.query("SELECT NOW() AS now");
         console.log("Conexión a base de datos exitosa. Hora del servidor:", rows[0].now);
+        await runMigrations();
     } catch (err) {
         console.error("Error al conectar a la base de datos:", err);
     }
+
+    app.listen(process.env.PORT, () => {
+        console.log(`Server running on port http://localhost:${process.env.PORT}`);
+    });
 }
 
-testConnection();
-
-
-app.listen(process.env.PORT, () => {
-    console.log(`Server running on port http://localhost:${process.env.PORT}`);
-});
+start();

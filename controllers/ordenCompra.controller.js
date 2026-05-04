@@ -3,11 +3,10 @@ import { OrdenCompraService } from '../services/ordenCompra.service.js';
 const ordenCompraService = new OrdenCompraService();
 
 export class OrdenCompraController {
+
     static async crearOrdenCompra(req, res) {
         try {
-            const ordenData = req.body;
-
-            const result = await ordenCompraService.crearOrdenCompra(ordenData);
+            const result = await ordenCompraService.crearOrdenCompra(req.body);
             res.status(201).json(result);
         } catch (error) {
             res.status(400).json({ error: error.message });
@@ -17,6 +16,48 @@ export class OrdenCompraController {
     static async listarOrdenesCompra(req, res) {
         try {
             const result = await ordenCompraService.listarOrdenesCompra();
+            res.status(200).json(result);
+        } catch (error) {
+            res.status(400).json({ error: error.message });
+        }
+    }
+
+    static async obtenerOrdenPorId(req, res) {
+        try {
+            const { id } = req.params;
+            const result = await ordenCompraService.obtenerOrdenPorId(id);
+            if (!result) return res.status(404).json({ error: 'Orden no encontrada' });
+            res.status(200).json(result);
+        } catch (error) {
+            res.status(400).json({ error: error.message });
+        }
+    }
+
+    static async actualizarOrden(req, res) {
+        try {
+            const { id } = req.params;
+            const result = await ordenCompraService.actualizarOrden(id, req.body);
+            res.status(200).json({ message: 'Orden actualizada', ordenCompra: result });
+        } catch (error) {
+            res.status(400).json({ error: error.message });
+        }
+    }
+
+    static async eliminarOrden(req, res) {
+        try {
+            const { id } = req.params;
+            await ordenCompraService.eliminarOrden(id);
+            res.status(200).json({ message: 'Orden eliminada correctamente' });
+        } catch (error) {
+            res.status(400).json({ error: error.message });
+        }
+    }
+
+    static async actualizarEstadoOrden(req, res) {
+        try {
+            const { id } = req.params;
+            const { estado } = req.body;
+            const result = await ordenCompraService.actualizarEstadoOrden(id, estado);
             res.status(200).json(result);
         } catch (error) {
             res.status(400).json({ error: error.message });
