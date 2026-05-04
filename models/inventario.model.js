@@ -22,13 +22,13 @@ export class InventarioRepository {
                     tc.nombre                                   AS tipo_corte,
                     COUNT(ce.id)                                AS cantidad,
                     COALESCE(SUM(ce.peso), 0)                   AS peso_total,
-                    'Almacén Principal'                         AS ubicacion,
+                    ce.almacen                                  AS ubicacion,
                     MIN(ce.fecha_registro)                      AS fecha_ingreso,
                     MIN(ce.id)                                  AS id
                 FROM cortes_extraidos ce
                 JOIN tipos_corte tc ON ce.tipo_corte_id = tc.id
                 WHERE ce.id NOT IN (SELECT corte_extraido_id FROM inventario WHERE corte_extraido_id IS NOT NULL)
-                GROUP BY tc.nombre
+                GROUP BY tc.nombre, ce.almacen
             ),
             physical_stock AS (
                 -- Datos de la tabla física de inventario
@@ -58,7 +58,8 @@ export class InventarioRepository {
                 ce.id as corte_id,
                 ce.peso,
                 ce.fecha_registro as fecha,
-                ce.clasificacion as calidad
+                ce.clasificacion as calidad,
+                ce.almacen
             FROM cortes_extraidos ce
             JOIN tipos_corte tc ON ce.tipo_corte_id = tc.id
             WHERE ('INV-' || tc.nombre || '-' || to_char(ce.fecha_registro, 'YYYYMMDD')) = $1
@@ -77,7 +78,8 @@ export class InventarioRepository {
                 i.fecha_ingreso as fecha,
                 ce.clasificacion as calidad,
                 ce.id as corte_id,
-                i.codigo
+                i.codigo,
+                i.almacen_nombre as almacen
             FROM inventario i
             LEFT JOIN cortes_extraidos ce ON i.corte_extraido_id = ce.id
             WHERE i.codigo = $1 OR i.tipo_corte = $1

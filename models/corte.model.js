@@ -8,17 +8,17 @@ export class CorteRepository {
 
             for (let i = 0; i < cortes.length; i++) {
                 const corte = cortes[i];
-                values.push(id, corte.tipo_corte_id, corte.clasificacion, corte.peso);
+                values.push(id, corte.tipo_corte_id, corte.clasificacion, corte.peso, corte.almacen || 'Almacén 1');
             }
 
             const placeholders = cortes.map((_, i) =>
-                `($${i * 4 + 1}, $${i * 4 + 2}, $${i * 4 + 3}, $${i * 4 + 4})`
+                `($${i * 5 + 1}, $${i * 5 + 2}, $${i * 5 + 3}, $${i * 5 + 4}, $${i * 5 + 5})`
             ).join(', ');
 
             const query = `
-        INSERT INTO cortes_extraidos (res_id, tipo_corte_id, clasificacion, peso)
+        INSERT INTO cortes_extraidos (res_id, tipo_corte_id, clasificacion, peso, almacen)
         VALUES ${placeholders}
-        RETURNING id, tipo_corte_id, clasificacion, peso
+        RETURNING id, tipo_corte_id, clasificacion, peso, almacen
       `;
 
             const result = await client.query(query, values);

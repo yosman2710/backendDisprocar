@@ -41,6 +41,10 @@ ALTER TABLE reses
 ALTER TABLE inventario
   ADD COLUMN IF NOT EXISTS almacen_nombre VARCHAR(50) DEFAULT 'Almacén 1';
 
+-- ── TABLA: cortes_extraidos ──────────────────────────────────
+ALTER TABLE cortes_extraidos
+  ADD COLUMN IF NOT EXISTS almacen VARCHAR(50) DEFAULT 'Almacén 1';
+
 -- ── ÍNDICES ───────────────────────────────────────────────────
 CREATE INDEX IF NOT EXISTS idx_reses_orden_id    ON reses(orden_id);
 CREATE INDEX IF NOT EXISTS idx_reses_tipo_de_res ON reses(tipo_de_res);
