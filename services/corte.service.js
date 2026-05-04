@@ -17,8 +17,9 @@ export class CorteService {
         if (res.estado === 'desguazado') {
             throw new Error('Res ya está desguazada');
         }
-        if (res.estado !== 'pesado_frio') {
-            throw new Error('Res debe estar "pesado_frio" para desguazar');
+        // En el nuevo sistema, la res llega en estado 'congelador'
+        if (res.estado !== 'congelador' && res.estado !== 'en_proceso') {
+            throw new Error('Res debe estar en "congelador" o "en_proceso" para desguazar');
         }
         return await resRepo.updateEstado(id, 'desguazado');
     }
@@ -28,7 +29,7 @@ export class CorteService {
         const res = await resRepo.findById(id);
         if (!res) throw new Error('Res no encontrada');
 
-        const estadosValidos = ['pesado_frio', 'desguazado', 'congelador'];
+        const estadosValidos = ['congelador', 'desguazado', 'en_proceso'];
         if (!estadosValidos.includes(res.estado)) {
             throw new Error(`Res debe estar en uno de los siguientes estados para registrar cortes: ${estadosValidos.join(', ')}`);
         }

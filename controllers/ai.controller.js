@@ -7,7 +7,7 @@ const getSystemContext = async () => {
         const queryGlobal = `
             SELECT 
                 COUNT(*) as reses_procesadas,
-                COALESCE(SUM(peso_caliente), 0) as peso_total_caliente,
+                COALESCE(SUM(peso_romana), 0) as peso_total_romana,
                 COALESCE(AVG(NULLIF(merma_porcentaje, 0)), 0) as merma_promedio
             FROM reses
         `;
@@ -82,7 +82,7 @@ export const chat = async (req, res) => {
                 
                 CONTEXTO ACTUAL DEL SISTEMA (Datos reales de la base de datos):
                 - Reses procesadas: ${context?.kpis?.reses_procesadas || 0}
-                - Peso total caliente: ${context?.kpis?.peso_total_caliente || 0} kg
+                - Peso total romana: ${context?.kpis?.peso_total_romana || 0} kg
                 - Merma promedio: ${Number(context?.kpis?.merma_promedio || 0).toFixed(2)}%
                 - Inventario (Cortes con menos existencia): ${context?.stocks?.slice(0, 5).map(s => `${s.tipo_corte}: ${s.peso_total}kg`).join(", ")}
                 - Órdenes recientes: ${context?.recentOrders?.map(o => `ID:${o.id} - ${o.proveedor} (${o.estado})`).join("; ")}
