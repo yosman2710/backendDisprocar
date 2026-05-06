@@ -56,6 +56,7 @@ export class CorteService {
                 tipo_corte_id: corteData.tipo_corte_id,
                 clasificacion: corteData.clasificacion,
                 peso: corteData.peso,
+                almacen: corteData.almacen,
                 tipo_nombre: tipoCorte.nombre
             });
         }

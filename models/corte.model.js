@@ -8,7 +8,7 @@ export class CorteRepository {
 
             for (let i = 0; i < cortes.length; i++) {
                 const corte = cortes[i];
-                values.push(id, corte.tipo_corte_id, corte.clasificacion, corte.peso, corte.almacen || 'Almacén 1');
+                values.push(id, corte.tipo_corte_id, corte.clasificacion, corte.peso, corte.almacen);
             }
 
             const placeholders = cortes.map((_, i) =>

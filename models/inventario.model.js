@@ -15,37 +15,40 @@ export class InventarioRepository {
     // Inventario unificado: Combina tabla física de inventario con vista en vivo de cortes
     async findAll() {
         const query = `
-            WITH live_stock AS (
-                -- Vista de cortes que aún no están en la tabla física de inventario
+            WITH combined_stock AS (
+                -- Cortes que aún no están en la tabla inventario
                 SELECT
-                    ('INV-' || tc.nombre || '-' || to_char(MIN(ce.fecha_registro), 'YYYYMMDD')) AS codigo,
+                    ('INV-' || tc.nombre || '-' || to_char(ce.fecha_registro, 'YYYYMMDD')) AS codigo,
                     tc.nombre                                   AS tipo_corte,
-                    COUNT(ce.id)                                AS cantidad,
-                    COALESCE(SUM(ce.peso), 0)                   AS peso_total,
+                    ce.peso                                     AS peso,
                     ce.almacen                                  AS ubicacion,
-                    MIN(ce.fecha_registro)                      AS fecha_ingreso,
-                    MIN(ce.id)                                  AS id
+                    ce.fecha_registro                           AS fecha_ingreso
                 FROM cortes_extraidos ce
                 JOIN tipos_corte tc ON ce.tipo_corte_id = tc.id
                 WHERE ce.id NOT IN (SELECT corte_extraido_id FROM inventario WHERE corte_extraido_id IS NOT NULL)
-                GROUP BY tc.nombre, ce.almacen
-            ),
-            physical_stock AS (
+
+                UNION ALL
+
                 -- Datos de la tabla física de inventario
                 SELECT 
                     codigo,
                     tipo_corte,
-                    1 AS cantidad,
-                    peso_total,
+                    peso_total AS peso,
                     almacen_nombre AS ubicacion,
-                    fecha_ingreso,
-                    id
+                    fecha_ingreso
                 FROM inventario
             )
-            SELECT * FROM live_stock
-            UNION ALL
-            SELECT * FROM physical_stock
-            ORDER BY tipo_corte ASC
+            SELECT 
+                codigo,
+                tipo_corte,
+                COUNT(*) AS cantidad,
+                SUM(peso) AS peso_total,
+                ubicacion,
+                MIN(fecha_ingreso) AS fecha_ingreso,
+                MIN(codigo) AS id -- Usamos el código como ID temporal para el mapeo
+            FROM combined_stock
+            GROUP BY codigo, tipo_corte, ubicacion
+            ORDER BY ubicacion ASC, tipo_corte ASC
         `;
         const result = await pool.query(query);
         return result.rows;
