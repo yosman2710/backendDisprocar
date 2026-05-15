@@ -21,11 +21,11 @@ export class OrdenCompraRepository {
         matadero_id, proveedor_id, fecha_matanza,
         detalle_tipos, temp_promedio, peso_promedio,
         condicion_vehiculo, condicion_cestas, observaciones, temp_termoking,
-        estado
+        estado, peso_total_matadero
       ) VALUES (
         $1, $2, $3, $4, $5, $6, $7,
         $8, $9, $10, $11, $12, $13, $14,
-        'pendiente'
+        'pendiente', $15
       )
       RETURNING *
     `;
@@ -41,7 +41,8 @@ export class OrdenCompraRepository {
       condicion_vehiculo || 'Bien',
       condicion_cestas   || 'Bien',
       observaciones      || null,
-      temp_termoking     || null
+      temp_termoking     || null,
+      fields.peso_total_matadero || 0
     ];
 
     const result = await pool.query(query, values);
@@ -115,10 +116,17 @@ export class OrdenCompraRepository {
   // ── BY PROVEEDOR ──────────────────────────────────────────────
   async findByProveedorId(proveedor_id) {
     const result = await pool.query(
-      `SELECT oc.*, m.nombre AS matadero_nombre
+      `SELECT
+         oc.*,
+         m.nombre AS matadero_nombre,
+         COALESCE(SUM(r.peso_romana), 0) AS peso_total_caliente,
+         COALESCE(SUM(r.merma_kg), 0) AS merma_total_kg,
+         COALESCE(AVG(NULLIF(r.merma_porcentaje, 0)), 0) AS merma_total_porcentaje
        FROM orden_compra oc
        LEFT JOIN mataderos m ON oc.matadero_id = m.id
+       LEFT JOIN reses r     ON oc.id = r.orden_id
        WHERE oc.proveedor_id = $1
+       GROUP BY oc.id, m.nombre
        ORDER BY oc.fecha DESC`,
       [proveedor_id]
     );
@@ -128,10 +136,17 @@ export class OrdenCompraRepository {
   // ── BY MATADERO ───────────────────────────────────────────────
   async findByMataderoId(matadero_id) {
     const result = await pool.query(
-      `SELECT oc.*, p.nombre AS proveedor_nombre
+      `SELECT
+         oc.*,
+         p.nombre AS proveedor_nombre,
+         COALESCE(SUM(r.peso_romana), 0) AS peso_total_caliente,
+         COALESCE(SUM(r.merma_kg), 0) AS merma_total_kg,
+         COALESCE(AVG(NULLIF(r.merma_porcentaje, 0)), 0) AS merma_total_porcentaje
        FROM orden_compra oc
        LEFT JOIN proveedores p ON oc.proveedor_id = p.id
+       LEFT JOIN reses r       ON oc.id = r.orden_id
        WHERE oc.matadero_id = $1
+       GROUP BY oc.id, p.nombre
        ORDER BY oc.fecha DESC`,
       [matadero_id]
     );
@@ -208,7 +223,8 @@ export class OrdenCompraRepository {
         observaciones       = COALESCE($10, observaciones),
         fecha_matanza       = COALESCE($11, fecha_matanza),
         detalle_tipos       = COALESCE($12, detalle_tipos),
-        peso_promedio       = COALESCE($13, peso_promedio)
+        peso_promedio       = COALESCE($13, peso_promedio),
+        peso_total_matadero = COALESCE($14, peso_total_matadero)
       WHERE id = $1
       RETURNING *
     `, [
@@ -222,7 +238,8 @@ export class OrdenCompraRepository {
       observaciones      || null,
       fecha_matanza      || null,
       loteData !== undefined ? JSON.stringify(loteData) : null,
-      peso_promedio ? parseFloat(peso_promedio) : null
+      peso_promedio ? parseFloat(peso_promedio) : null,
+      fields.peso_total_matadero ? parseFloat(fields.peso_total_matadero) : null
     ]);
     return this._parseRow(result.rows[0]);
   }
