@@ -9,7 +9,7 @@ export class OrdenCompraRepository {
     detalle_tipos,          // fallback por compatibilidad
     temperatura,            // temperatura promedio de la carne
     temp_promedio,          // alias alternativo
-    peso_promedio,
+    peso_promedio, peso_total_matadero,
     condicion_vehiculo, condicion_cestas, observaciones, temp_termoking
   }) {
     const loteData = lote ?? detalle_tipos ?? null;
@@ -42,7 +42,7 @@ export class OrdenCompraRepository {
       condicion_cestas   || 'Bien',
       observaciones      || null,
       temp_termoking     || null,
-      fields.peso_total_matadero || 0
+      peso_total_matadero || 0
     ];
 
     const result = await pool.query(query, values);

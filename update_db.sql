@@ -17,7 +17,8 @@ ALTER TABLE orden_compra
   ADD COLUMN IF NOT EXISTS condicion_vehiculo VARCHAR(20) DEFAULT 'Bien',
   ADD COLUMN IF NOT EXISTS condicion_cestas   VARCHAR(20) DEFAULT 'Bien',
   ADD COLUMN IF NOT EXISTS observaciones      TEXT,
-  ADD COLUMN IF NOT EXISTS temp_termoking     NUMERIC(4,1);
+  ADD COLUMN IF NOT EXISTS temp_termoking     NUMERIC(4,1),
+  ADD COLUMN IF NOT EXISTS peso_total_matadero NUMERIC(10,2) DEFAULT 0;
 
 -- ── TABLA: reses ─────────────────────────────────────────────
 ALTER TABLE reses

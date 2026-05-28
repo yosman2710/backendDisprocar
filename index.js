@@ -51,6 +51,7 @@ async function runMigrations() {
         `ALTER TABLE orden_compra ADD COLUMN IF NOT EXISTS condicion_cestas   VARCHAR(20) DEFAULT 'Bien'`,
         `ALTER TABLE orden_compra ADD COLUMN IF NOT EXISTS observaciones      TEXT`,
         `ALTER TABLE orden_compra ADD COLUMN IF NOT EXISTS temp_termoking     NUMERIC(4,1)`,
+        `ALTER TABLE orden_compra ADD COLUMN IF NOT EXISTS peso_total_matadero NUMERIC(10,2) DEFAULT 0`,
         // reses: eliminar columnas obsoletas
         `ALTER TABLE reses DROP COLUMN IF EXISTS peso_caliente`,
         `ALTER TABLE reses DROP COLUMN IF EXISTS fecha_peso_caliente`,
