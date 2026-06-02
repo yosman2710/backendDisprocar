@@ -18,7 +18,7 @@ export class InventarioRepository {
             WITH combined_stock AS (
                 -- Cortes que aún no están en la tabla inventario
                 SELECT
-                    ('INV-' || tc.nombre || '-' || to_char(ce.fecha_registro, 'YYYYMMDD')) AS codigo,
+                    ('INV-' || tc.nombre || '-' || to_char(ce.fecha_registro, 'YYYYMMDD') || '-' || ce.id) AS codigo,
                     tc.nombre                                   AS tipo_corte,
                     ce.peso                                     AS peso,
                     ce.almacen                                  AS ubicacion,
@@ -65,7 +65,7 @@ export class InventarioRepository {
                 ce.almacen
             FROM cortes_extraidos ce
             JOIN tipos_corte tc ON ce.tipo_corte_id = tc.id
-            WHERE ('INV-' || tc.nombre || '-' || to_char(ce.fecha_registro, 'YYYYMMDD')) = $1
+            WHERE ('INV-' || tc.nombre || '-' || to_char(ce.fecha_registro, 'YYYYMMDD') || '-' || ce.id) = $1
         `;
         const resultVista = await pool.query(queryVista, [codigo]);
 

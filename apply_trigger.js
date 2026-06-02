@@ -24,7 +24,7 @@ BEGIN
         fecha_ingreso,
         corte_extraido_id
     ) VALUES (
-        'INV-' || tipo_nombre_var || '-' || to_char(NEW.fecha_registro, 'YYYYMMDD'),
+        'INV-' || tipo_nombre_var || '-' || to_char(NEW.fecha_registro, 'YYYYMMDD') || '-' || NEW.id,
         tipo_nombre_var,
         NEW.peso,
         NEW.almacen,
@@ -52,7 +52,7 @@ INSERT INTO inventario (
     corte_extraido_id
 )
 SELECT 
-    'INV-' || tc.nombre || '-' || to_char(ce.fecha_registro, 'YYYYMMDD'),
+    'INV-' || tc.nombre || '-' || to_char(ce.fecha_registro, 'YYYYMMDD') || '-' || ce.id,
     tc.nombre,
     ce.peso,
     ce.almacen,
