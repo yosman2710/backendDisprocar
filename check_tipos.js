@@ -8,6 +8,9 @@ const dbUrl = envContent.split('\n').find(line => line.startsWith('DB_URL=')).sp
 
 const pool = new Pool({
     connectionString: dbUrl,
+    ssl: {
+        rejectUnauthorized: false
+    }
 });
 
 async function check() {

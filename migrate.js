@@ -7,6 +7,9 @@ import pool from './db.js';
 
 const migrations = [
   // ── orden_compra ──────────────────────────────────────────────
+  `ALTER TABLE orden_compra DROP CONSTRAINT IF EXISTS orden_compra_estado_check`,
+  `ALTER TABLE orden_compra ADD CONSTRAINT orden_compra_estado_check CHECK (estado IN ('pendiente', 'en_proceso', 'procesando', 'completado', 'congelador'))`,
+
   `ALTER TABLE orden_compra
      DROP COLUMN IF EXISTS sexo,
      DROP COLUMN IF EXISTS clasificacion,

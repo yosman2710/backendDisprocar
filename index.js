@@ -38,6 +38,9 @@ app.get("/", (req, res) => {
 // Todos los ALTER usan IF NOT EXISTS → seguros de re-ejecutar en cada deploy
 async function runMigrations() {
     const steps = [
+        // orden_compra: corregir restricción de estado
+        `ALTER TABLE orden_compra DROP CONSTRAINT IF EXISTS orden_compra_estado_check`,
+        `ALTER TABLE orden_compra ADD CONSTRAINT orden_compra_estado_check CHECK (estado IN ('pendiente', 'en_proceso', 'procesando', 'completado', 'congelador'))`,
         // orden_compra: eliminar columnas obsoletas
         `ALTER TABLE orden_compra DROP COLUMN IF EXISTS sexo`,
         `ALTER TABLE orden_compra DROP COLUMN IF EXISTS clasificacion`,

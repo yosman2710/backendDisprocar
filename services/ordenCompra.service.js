@@ -77,7 +77,7 @@ export class OrdenCompraService {
     }
 
     async actualizarEstadoOrden(id, estado) {
-        const estadosValidos = ['pendiente', 'procesando', 'completado', 'congelador'];
+        const estadosValidos = ['pendiente', 'en_proceso', 'procesando', 'completado', 'congelador'];
         if (!estadosValidos.includes(estado)) {
             throw new Error(`Estado inválido. Valores permitidos: ${estadosValidos.join(', ')}`);
         }

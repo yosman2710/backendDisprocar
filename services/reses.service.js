@@ -55,7 +55,7 @@ export class ResesService {
 
         // Actualizar estado de la orden
         if (numeroRes === 1) {
-            await ordenCompraRepo.updateEstado(data.orden_id, 'procesando');
+            await ordenCompraRepo.updateEstado(data.orden_id, 'en_proceso');
         }
         if (numeroRes === ordenCompra.cantidad_res) {
             await ordenCompraRepo.updateEstado(data.orden_id, 'completado');
