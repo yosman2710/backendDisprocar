@@ -156,8 +156,8 @@ export const chat = async (req, res) => {
         let result = await chatSession.sendMessage(message);
 
         // Handle function calls if Gemini requests them
-        if (result.response.functionCalls && result.response.functionCalls().length > 0) {
-            const calls = result.response.functionCalls();
+        const calls = typeof result.response.functionCalls === 'function' ? result.response.functionCalls() : null;
+        if (calls && calls.length > 0) {
             const functionResponses = [];
 
             for (const call of calls) {
