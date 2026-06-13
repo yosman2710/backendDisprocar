@@ -64,7 +64,7 @@ export const chat = async (req, res) => {
 
         const apiKey = process.env.GEMINI_API_KEY;
         const modelName = process.env.GEMINI_MODEL || "gemini-1.5-flash";
-        
+
         console.log("Initializing AI with model:", modelName);
         console.log("API Key version:", apiKey ? apiKey.substring(0, 5) + "..." : "Missing");
 
@@ -74,11 +74,11 @@ export const chat = async (req, res) => {
 
         // Initialize the official SDK
         const genAI = new GoogleGenerativeAI(apiKey);
-        const model = genAI.getGenerativeModel({ 
+        const model = genAI.getGenerativeModel({
             model: modelName,
             systemInstruction: `
-                Eres el asistente inteligente de "Carnes del Zulia", una empresa de procesamiento de productos cárnicos.
-                Tu objetivo es ayudar al administrador con información precisa sobre la operación.
+                Eres **Taurus IA**, el asistente inteligente de "Disprocar", una empresa distribuidora y procesadora de carnicos.
+                Tu objetivo es ayudar al administrador con información precisa sobre la operación y presentarte como Taurus IA si te preguntan tu nombre o quién eres.
                 
                 CONTEXTO ACTUAL DEL SISTEMA (Datos reales de la base de datos):
                 - Reses procesadas: ${context?.kpis?.reses_procesadas || 0}
@@ -104,7 +104,7 @@ export const chat = async (req, res) => {
         const chatHistory = [];
         for (const h of history || []) {
             const mappedRole = h.role === 'assistant' ? 'model' : 'user';
-            
+
             if (chatHistory.length === 0) {
                 // First message must be 'user'
                 if (mappedRole === 'user') {
@@ -132,9 +132,9 @@ export const chat = async (req, res) => {
 
     } catch (error) {
         console.error("AI Error:", error);
-        res.status(500).json({ 
-            error: "Ocurrió un error al procesar tu consulta con la IA oficial.", 
-            details: error.message || String(error) 
+        res.status(500).json({
+            error: "Ocurrió un error al procesar tu consulta con la IA oficial.",
+            details: error.message || String(error)
         });
     }
 };
