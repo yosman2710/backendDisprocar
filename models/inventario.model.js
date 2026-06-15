@@ -40,7 +40,7 @@ export class InventarioRepository {
                 ce.almacen
             FROM cortes_extraidos ce
             JOIN tipos_corte tc ON ce.tipo_corte_id = tc.id
-            WHERE ('INV-' || UPPER(REPLACE(tc.nombre, ' ', '')) || '-' || LPAD(ce.tipo_corte_id::text, 3, '0') || '-' || COALESCE(ce.clasificacion, 'STD')) = $1
+            WHERE ('INV-' || UPPER(REPLACE(tc.nombre, ' ', '')) || '-' || LPAD(ce.tipo_corte_id::text, 3, '0') || '-' || COALESCE(ce.clasificacion, 'STD') || '-' || UPPER(REPLACE(ce.almacen, ' ', ''))) = $1
             ORDER BY ce.fecha_registro DESC
         `;
         const result = await pool.query(query, [codigo]);

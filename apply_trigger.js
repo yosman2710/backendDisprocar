@@ -11,7 +11,7 @@ DECLARE
 BEGIN
     SELECT nombre INTO tipo_nombre_var FROM tipos_corte WHERE id = NEW.tipo_corte_id;
     
-    nuevo_codigo := 'INV-' || UPPER(REPLACE(tipo_nombre_var, ' ', '')) || '-' || LPAD(NEW.tipo_corte_id::text, 3, '0') || '-' || COALESCE(NEW.clasificacion, 'STD');
+    nuevo_codigo := 'INV-' || UPPER(REPLACE(tipo_nombre_var, ' ', '')) || '-' || LPAD(NEW.tipo_corte_id::text, 3, '0') || '-' || COALESCE(NEW.clasificacion, 'STD') || '-' || UPPER(REPLACE(NEW.almacen, ' ', ''));
 
     INSERT INTO inventario (
         codigo,
@@ -58,15 +58,15 @@ INSERT INTO inventario (
     cantidad
 )
 SELECT 
-    'INV-' || UPPER(REPLACE(tc.nombre, ' ', '')) || '-' || LPAD(ce.tipo_corte_id::text, 3, '0') || '-' || COALESCE(ce.clasificacion, 'STD') AS codigo,
+    'INV-' || UPPER(REPLACE(tc.nombre, ' ', '')) || '-' || LPAD(ce.tipo_corte_id::text, 3, '0') || '-' || COALESCE(ce.clasificacion, 'STD') || '-' || UPPER(REPLACE(ce.almacen, ' ', '')) AS codigo,
     tc.nombre AS tipo_corte,
     SUM(ce.peso) AS peso_total,
-    MAX(ce.almacen) AS almacen_nombre,
+    ce.almacen AS almacen_nombre,
     MIN(ce.fecha_registro) AS fecha_ingreso,
     COUNT(*) AS cantidad
 FROM cortes_extraidos ce
 JOIN tipos_corte tc ON ce.tipo_corte_id = tc.id
-GROUP BY 1, 2;
+GROUP BY 1, 2, 4;
 `;
 
 async function applyTrigger() {
