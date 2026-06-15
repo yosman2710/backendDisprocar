@@ -194,9 +194,20 @@ export const chat = async (req, res) => {
 
     } catch (error) {
         console.error("AI Error:", error);
+        
+        const details = error.message || String(error);
+        
+        // Detectar si es un error de cuota/límite de Gemini (429 o mensaje de 'quota')
+        if (error.status === 429 || details.toLowerCase().includes("quota") || details.includes("429") || details.toLowerCase().includes("too many requests")) {
+            return res.json({
+                success: true,
+                reply: "⚠️ **Límite de mensajes alcanzado.**\n\nHe excedido la cuota de mi plan gratuito por el momento. Por favor, intenta de nuevo un poco más tarde."
+            });
+        }
+
         res.status(500).json({
             error: "Ocurrió un error al procesar tu consulta con la IA oficial.",
-            details: error.message || String(error)
+            details: details
         });
     }
 };
